@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotHero Parking Pass</title>
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f7f7f7;
+    }
+
+    /* TOP BLUE HEADER */
+    .top-header {
+        background: #0A6CFF; /* SpotHero blue from screenshot */
+        padding: 40px 60px;
+        color: white;
+    }
+
+    /* Logo inside header */
+    .logo {
+        width: 120px;
+        height: auto;
+        display: block;
+        margin-bottom: 25px;
+    }
+
+    .event-title {
+        font-size: 38px;
+        font-weight: bold;
+        margin: 0 0 10px;
+    }
+
+    .event-info {
+        font-size: 18px;
+        margin: 3px 0;
+        opacity: 0.95;
+    }
+
+    /* Containers */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* 2 columns */
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .left-col {
+            flex: 1.2;
+        }
+
+        .right-col {
+            flex: 1;
+            background: #f7f7f7;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            margin-top: 0;
+        }
+
+    .qr-code {
+        width: 160px;
+        margin-bottom: 10px;
+    }
+
+    .status {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Right Column */
+    .right-col {
+        flex: 1;
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .entry-label {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Buttons + Inputs */
+    .btn {
+        display: inline-block;
+        padding: 12px 22px;
+        background: #0A6CFF;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        background: #004fcc;
+    }
+ input[type="text"], select {
+        border: 2px solid #b3b3b3;   /* Dark gray border */
+        border-radius: 12px;         /* Rounded corners */
+        padding: 10px 12px;          /* Space inside box */
+        font-size: 16px;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="text"]:focus, select:focus {
+        border-color: #0A6CFF;       /* Blue border on focus */
+        box-shadow: 0 0 5px rgba(10, 108, 255, 0.3);
+
+</style>
+</head>
+<body>
+<div id="vehiclePopup" style="
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0A6CFF;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 48px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+">
+    Vehicle Updated
+</div>
+
+<!-- BLUE HEADER -->
+<div class="top-header">
+
+    <!-- LOGO -->
+    <img src="spothero-logo.png" class="logo" alt="SpotHero Logo">
+
+    <!-- “Parking Pass” OUTSIDE white box -->
+    <div class="event-title">Parking Pass</div>
+
+    <!-- Event info OUTSIDE white box -->
+    <div class="event-info">Los Angeles Lakers vs. Golden State Warriors</div>
+    <div class="event-info">820 S Grand Ave. - Lot</div>
+    <div class="event-info">Rental ID: 96363618</div>
+</div>
+
+ <!-- MAIN PASS BOX WITH 2 COLUMNS -->
+    <div class="container">
+        <div class="two-columns">
+
+            <!-- LEFT COLUMN -->
+            <div class="left-col">  
+<div style="
+    width: 50%;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    text-align: center;
+">
+    <div style="font-size: 16px; font-weight: bold; color: #555;">
+        Rental ID
+    </div>
+    <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">
+        96363618
+    </div>
+</div>                <div class="input-group">
+                    <label for="vehicle">Vehicle Make & Model:</label>
+                    <select id="vehicle">
+                        <option>Select your vehicle</option>
+<option>Vehicle Not Listed</option>
+                       <option>Chevrolet Blazer</option>
+<option>Chevrolet Camaro</option>
+<option>Chevrolet Colorado</option>
+<option>Chevrolet Equinox</option>
+<option>Chevrolet Malibu</option>
+<option>Chevrolet Silverado</option>
+<option>Chevrolet Suburban</option>
+<option>Chevrolet Tahoe</option>
+<option>Chevrolet Traverse</option>
+<option>Chevrolet Trax</option>
+
+<option>Ford Bronco</option>
+<option>Ford Bronco Sport</option>
+<option>Ford Escape</option>
+<option>Ford Expedition</option>
+<option>Ford Explorer</option>
+<option>Ford F-Series</option>
+<option>Ford Maverick</option>
+<option>Ford Mustang Mach-E</option>
+<option>Ford Ranger</option>
+<option>Ford Transit</option>
+
+<option>GMC Acadia</option>
+<option>GMC Canyon</option>
+<option>GMC Hummer EV</option>
+<option>GMC Savana</option>
+<option>GMC Sierra</option>
+<option>GMC Terrain</option>
+<option>GMC Terrain Denali</option>
+<option>GMC Yukon</option>
+<option>GMC Yukon Denali</option>
+<option>GMC Yukon XL</option>
+
+<option>Honda Accord</option>
+<option>Honda Civic</option>
+<option>Honda CR-V</option>
+<option>Honda Fit</option>
+<option>Honda HR-V</option>
+<option>Honda Insight</option>
+<option>Honda Odyssey</option>
+<option>Honda Passport</option>
+<option>Honda Pilot</option>
+<option>Honda Ridgeline</option>
+
+<option>Hyundai Accent</option>
+<option>Hyundai Elantra</option>
+<option>Hyundai Ioniq</option>
+<option>Hyundai Kona</option>
+<option>Hyundai Kona EV</option>
+<option>Hyundai Palisade</option>
+<option>Hyundai Santa Fe</option>
+<option>Hyundai Sonata</option>
+<option>Hyundai Tucson</option>
+<option>Hyundai Venue</option>
+
+<option>Jeep Cherokee</option>
+<option>Jeep Compass</option>
+<option>Jeep Gladiator</option>
+<option>Jeep Grand Cherokee</option>
+<option>Jeep Grand Wagoneer</option>
+<option>Jeep Liberty</option>
+<option>Jeep Renegade</option>
+<option>Jeep Wagoneer</option>
+<option>Jeep Wrangler</option>
+
+<option>Kia Carnival</option>
+<option>Kia EV6</option>
+<option>Kia Forte</option>
+<option>Kia Niro</option>
+<option>Kia Seltos</option>
+<option>Kia Sorento</option>
+<option>Kia Soul</option>
+<option>Kia Sportage</option>
+<option>Kia Stinger</option>
+<option>Kia Telluride</option>
+
+<option>Nissan Altima</option>
+<option>Nissan Armada</option>
+<option>Nissan Frontier</option>
+<option>Nissan Kicks</option>
+<option>Nissan Murano</option>
+<option>Nissan Pathfinder</option>
+<option>Nissan Rogue</option>
+<option>Nissan Sentra</option>
+<option>Nissan Titan</option>
+<option>Nissan Versa</option>
+
+<option>Ram Pickup</option>
+<option>Ram ProMaster</option>
+<option>Ram ProMaster City</option>
+
+<option>Toyota 4Runner</option>
+<option>Toyota Camry</option>
+<option>Toyota Corolla</option>
+<option>Toyota Corolla Cross</option>
+<option>Toyota Highlander</option>
+<option>Toyota Prius</option>
+<option>Toyota RAV4</option>
+<option>Toyota Sienna</option>
+<option>Toyota Tacoma</option>
+<option>Toyota Tundra</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="license">License Plate:</label>
+</div>
+<div>                    
+<input type="text" id="license" placeholder="e.g., ABC1234">
+                </div>
+
+                <button class="btn">Update Vehicle</button>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-col">
+                <p><strong>Enter After:</strong><br>5:00 PM, Thu, April 3</p>
+                <p><strong>Exit Before:</strong><br>11:00 PM, Thu, April 3</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INSTRUCTIONS BOX -->
+    <div class="container">
+        <h2>Things You Should Know</h2>
+        <p>Due to size constraints, this location cannot accommodate pickup trucks or passenger vans.</p>
+        <p>This facility may convert to valet if occupancy is high.</p>
+
+        <h2>Parking Instructions</h2>
+        <p>1. Show the attendant your SpotHero parking pass (mobile or printed).</p>
+        <p>2. Simply leave when you're ready!</p>
+        <p>3. If no attendant is present, write “SpotHero Reservation Rental ID #(your rental ID)” and place on your dashboard.</p>
+        <p>Make sure your license plate is entered correctly.</p>
+    </div>
+<script>
+    const updateBtn = document.querySelector('.btn');
+    const popup = document.getElementById('vehiclePopup');
+
+    updateBtn.addEventListener('click', () => {
+        // Show popup
+        popup.style.opacity = '1';
+        popup.style.pointerEvents = 'auto';
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            popup.style.pointerEvents = 'none';
+        }, 3000);
+    });
+</script>
+</body>
+</html>
