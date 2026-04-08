@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpotHero | Parking Pass</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #222; }
+
+    /* NAVBAR */
+    .navbar {
+      background: #1271eb;
+      padding: 14px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar img { height: 36px; }
+    .navbar nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+    }
+    .navbar nav a:hover { text-decoration: underline; }
+
+    /* BLUE HEADER */
+    .page-header {
+      background: #1271eb;
+      color: white;
+      padding: 30px 40px 50px;
+    }
+    .page-header h1 { font-size: 32px; margin-bottom: 8px; }
+    .page-header p { font-size: 16px; margin-bottom: 4px; }
+    .page-header .address { font-size: 14px; opacity: 0.85; }
+
+    /* MAIN CARD */
+    .card-wrapper {
+      max-width: 680px;
+      margin: -30px auto 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      overflow: hidden;
+      padding: 30px;
+    }
+
+    .card-top { display: flex; gap: 20px; flex-wrap: wrap; }
+
+    /* LEFT: Rental ID */
+    .rental-box {
+      flex: 1; min-width: 200px;
+      border-right: 1px solid #ddd;
+      padding-right: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Rounded rental ID badge */
+    .rental-id-badge {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      padding: 14px 28px;
+      text-align: center;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+    .rental-id-badge .label { font-size: 11px; color: #999; margin-bottom: 4px; letter-spacing: 0.5px; }
+    .rental-id-badge .rental-id { font-size: 28px; font-weight: bold; color: #111; }
+
+    /* Warning box - centered */
+    .warning-box {
+      background: #fff3f3;
+      border: 1px solid #f5c6c6;
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-size: 13px;
+      text-align: center;
+      width: 100%;
+    }
+    .warning-box .dot { color: red; font-size: 16px; }
+    .warning-box strong { display: block; margin-bottom: 4px; }
+    .add-plate-btn {
+      display: inline-block;
+      margin-top: 10px;
+      background: #1271eb;
+      color: white;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* RIGHT: Times */
+    .time-box {
+      flex: 1; min-width: 200px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .time-row {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 14px;
+      justify-content: center;
+    }
+    .time-col { text-align: center; }
+    .time-col .time-label { font-size: 11px; color: #777; margin-bottom: 2px; }
+    .time-col .time-val { font-size: 22px; font-weight: bold; }
+    .time-col .time-date { font-size: 12px; color: #444; }
+
+    .vehicle-row {
+      font-size: 13px; color: #e65c00;
+      margin-bottom: 10px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    .vehicle-row a {
+      color: #1271eb; margin-left: 8px;
+      text-decoration: none; font-weight: bold; cursor: pointer;
+    }
+
+    .vehicle-display {
+      font-size: 13px; color: #333;
+      margin-bottom: 10px; display: none;
+      text-align: center;
+    }
+    .vehicle-display a {
+      color: #1271eb; margin-left: 8px;
+      text-decoration: none; font-size: 12px; cursor: pointer;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white; border-radius: 10px;
+      width: 95%; max-width: 500px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2); overflow: hidden;
+    }
+    .modal-header {
+      background: #1271eb; color: white;
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 16px; font-weight: bold;
+    }
+    .modal-header .close-btn {
+      background: none; border: none; color: white;
+      font-size: 20px; cursor: pointer; line-height: 1;
+    }
+    .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+
+    .radio-option {
+      display: flex; align-items: center; gap: 10px;
+      border: 1px solid #ddd; border-radius: 6px;
+      padding: 12px 14px; margin-bottom: 8px;
+      cursor: pointer; font-size: 14px; transition: border-color 0.2s;
+    }
+    .radio-option:hover { border-color: #1271eb; }
+    .radio-option input[type="radio"] { accent-color: #1271eb; width: 16px; height: 16px; }
+    .radio-option.selected { border-color: #1271eb; background: #f0f7ff; }
+
+    .add-new-section {
+      border: 1px solid #1271eb; border-radius: 6px;
+      padding: 14px; margin-top: 8px; display: none;
+    }
+    .add-new-section.visible { display: block; }
+
+    .modal-input, .modal-select {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid #ccc; border-radius: 6px;
+      font-size: 14px; margin-bottom: 10px;
+      background: white; color: #555; outline: none;
+    }
+    .modal-input:focus, .modal-select:focus { border-color: #1271eb; }
+
+    .modal-checkbox-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: #444; margin-top: 4px;
+    }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 16px 20px; border-top: 1px solid #eee;
+    }
+    .btn-cancel {
+      padding: 9px 20px; border: 1px solid #ccc;
+      border-radius: 6px; background: white;
+      font-size: 14px; cursor: pointer; color: #444;
+    }
+    .btn-cancel:hover { background: #f5f5f5; }
+    .btn-submit {
+      padding: 9px 22px; background: #1271eb; color: white;
+      border: none; border-radius: 6px;
+      font-size: 14px; cursor: pointer; font-weight: bold;
+    }
+    .btn-submit:hover { background: #0f5fd4; }
+
+    /* GALLERY */
+    .gallery {
+      max-width: 680px; margin: 0 auto 30px;
+      display: flex; gap: 6px; overflow-x: auto; padding: 0 10px;
+    }
+    .gallery img {
+      width: 220px; height: 150px; object-fit: cover;
+      border-radius: 6px; flex-shrink: 0;
+    }
+
+    /* CONTENT */
+    .content-wrap {
+      max-width: 680px; margin: 0 auto 40px;
+      display: flex; gap: 20px; flex-wrap: wrap; padding: 0 10px;
+    }
+    .main-col { flex: 2; min-width: 260px; }
+    .side-col { flex: 1; min-width: 200px; }
+
+    .section-title { font-size: 22px; font-weight: bold; margin-bottom: 14px; }
+    .section-sub { font-size: 13px; color: #777; margin-bottom: 4px; }
+    .section-sub a { color: #1271eb; }
+    .directions-text { font-size: 13px; line-height: 1.7; color: #333; margin-bottom: 14px; }
+    .nav-there-btn {
+      display: inline-block; padding: 9px 16px;
+      border: 1px solid #1271eb; color: #1271eb;
+      border-radius: 6px; font-size: 13px; text-decoration: none;
+    }
+    .things-list { font-size: 13px; line-height: 1.8; color: #333; padding-left: 16px; }
+    .things-list li { margin-bottom: 6px; }
+    .height-note { font-size: 12px; color: #555; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
+    .instructions-title { font-size: 22px; font-weight: bold; margin: 24px 0 14px; }
+    .step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .step-num {
+      background: #1271eb; color: white;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 13px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .step-text { font-size: 13px; line-height: 1.6; color: #333; }
+
+    .side-box {
+      background: #f9f9f9; border: 1px solid #e5e5e5;
+      border-radius: 8px; padding: 18px; margin-bottom: 16px; font-size: 13px;
+    }
+    .side-box h4 { font-size: 14px; font-weight: bold; margin-bottom: 10px; }
+    .side-box p { color: #444; line-height: 1.6; margin-bottom: 6px; }
+    .amenity-item { margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .call-btn {
+      display: block; text-align: center;
+      background: white; border: 1px solid #1271eb;
+      color: #1271eb; padding: 9px; border-radius: 6px;
+      margin-top: 10px; text-decoration: none; font-size: 13px;
+    }
+    .rental-id-small { font-size: 12px; color: #555; margin-top: 8px; }
+    .store-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .store-btn {
+      background: #222; color: white; padding: 7px 12px;
+      border-radius: 5px; font-size: 11px; text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .card-top { flex-direction: column; }
+      .rental-box { border-right: none; border-bottom: 1px solid #ddd; padding-bottom: 16px; }
+      .page-header { padding: 20px; }
+      .card-wrapper { margin: -20px 10px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <img src="spothero-logo.png" alt="SpotHero Logo" />
+    <nav>
+      <a href="#">About</a>
+      <a href="#">Get the App</a>
+      <a href="#">Reservations</a>
+      <a href="#">My Account</a>
+    </nav>
+  </div>
+
+  <!-- BLUE HEADER -->
+  <div class="page-header">
+    <h1>Parking Pass</h1>
+    <p>Ole 60</p>
+    <p class="address">300 Lasalle St. – Heal Garage</p>
+  </div>
+
+  <!-- MAIN PASS CARD -->
+  <div class="card-wrapper">
+    <div class="card-top">
+
+      <!-- LEFT: Rental ID -->
+      <div class="rental-box">
+        <div class="rental-id-badge">
+          <div class="label">Rental ID</div>
+          <div class="rental-id">120399414</div>
+        </div>
+
+        <!-- Warning box - hidden once plate added -->
+        <div class="warning-box" id="warningBox">
+          
+          <strong><span class="dot">&#9679;</span> Don't Get Double Charged</strong>
+          Add license plate before exit.
+          <br>
+          <button class="add-plate-btn" onclick="openModal()">Add License Plate</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Times + Vehicle -->
+      <div class="time-box">
+        <div class="time-row">
+          <div class="time-col">
+            <div class="time-label">Enter After</div>
+            <div class="time-val">5:00 PM</div>
+            <div class="time-date">Fri, April 10</div>
+          </div>
+          <div class="time-col">
+            <div class="time-label">Exit Before</div>
+            <div class="time-val">11:00 PM</div>
+            <div class="time-date">Fri, April 10</div>
+          </div>
+        </div>
+
+        <div class="vehicle-row" id="missingVehicleRow">
+          Missing Vehicle &nbsp;<a onclick="openModal()">Add Vehicle</a>
+        </div>
+
+        <div class="vehicle-display" id="vehicleDisplay">
+          <strong><span id="vehicleName"></span> &middot; <span id="vehiclePlate"></span></strong>
+          <a onclick="openModal()">Change</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHOTO GALLERY -->
+  <div class="gallery">
+    <img src="healgarage1.jpg" alt="Heal Garage Photo 1" />
+    <img src="healgarage2.jpg" alt="Heal Garage Photo 2" />
+    <img src="healgarage3.jpg" alt="Heal Garage Photo 3" />
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content-wrap">
+    <div class="main-col">
+      <div class="section-title">Getting There</div>
+      <div class="section-sub">Enter At:<br>
+        <a href="https://www.google.com/maps/place/300+Lasalle+St,+New+Orleans,+LA+70112,+USA/@29.9538111,-90.079956,1055m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8620a5e0fce376ed:0x64cc0af84db9eae8!8m2!3d29.9538065!4d-90.0773811!16s%2Fg%2F12lw10sdy?entry=ttu&g_ep=EgoyMDI2MDQwNS4wIKXMDSoASAFQAw%3D%3D" target="_blank">300 Lasalle Street, New Orleans, LA</a>
+      </div>
+      <br>
+      <div class="directions-text">
+        Enter this location at 300 Lasalle St. This is the Heal garage, operated by Metropolis. It is located on the East side of Lasalle St. between Perdido St. and Gravier St. The entrance is marked by a vertical white 'Park' sign with black lettering.
+      </div>
+      <a class="nav-there-btn" href="https://www.google.com/maps/place/300+Lasalle+St,+New+Orleans,+LA+70112,+USA/@29.9538111,-90.079956,1055m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8620a5e0fce376ed:0x64cc0af84db9eae8!8m2!3d29.9538065!4d-90.0773811!16s%2Fg%2F12lw10sdy?entry=ttu&g_ep=EgoyMDI2MDQwNS4wIKXMDSoASAFQAw%3D%3D" target="_blank">&#9992; Navigate There</a>
+      <br><br>
+      <div class="section-title">Things You Should Know</div>
+      <ul class="things-list">
+        <li>Pedestrian Access – This facility has controlled pedestrian access. To open the door, please call Metropolis, the garage management, at: +18564859703</li>
+        <li>Additionally, make sure your license plate on your parking pass is accurate.</li>
+      </ul>
+      <div class="height-note">Height Restriction: 6' 2"</div>
+      <div class="instructions-title">Parking Instructions</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Make sure your license plate matches the plate on your Parking Pass. Failure to do so may result in a ticket or tow.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Just drive in. Our cameras will recognize your license plate. You may park anywhere that doesn't say "Reserved".</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Simply drive out when you're ready to go!</div>
+      </div>
+    </div>
+
+    <div class="side-col">
+      <div class="side-box">
+        <h4>Location Access Hours</h4>
+        <p>This facility is open 24/7.</p>
+      </div>
+      <div class="side-box">
+        <h4>Amenities</h4>
+        <div class="amenity-item">&#128682; Self Park</div>
+        <div class="amenity-item">&#128663; Garage – Covered</div>
+        <div class="amenity-item">&#10006; Touchless</div>
+        <div class="amenity-item">&#8646; In &amp; Out Allowed</div>
+        <div class="amenity-item">&#9855; Wheelchair Accessible</div>
+        <div class="amenity-item">&#128268; EV Charging</div>
+      </div>
+      <div class="side-box">
+        <h4>Questions?</h4>
+        <p>Our Customer Heroes are here to help!</p>
+        <p>Available daily, 7am – 12am EDT</p>
+        <a class="call-btn" href="tel:8442437768">Call (844) 243-7768</a>
+        <div class="rental-id-small">Rental ID: 120399469</div>
+        <p style="margin-top:12px; font-size:12px; color:#555;">For the smoothest parking experience, try the SpotHero mobile app.</p>
+        <div class="store-btns">
+          <a class="store-btn" href="#">&#127822; App Store</a>
+          <a class="store-btn" href="#">&#9654; Google Play</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHANGE VEHICLE MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        Change Vehicle
+        <button class="close-btn" onclick="closeModal()">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="radio-option" onclick="selectRadio('v1', this)">
+          <input type="radio" name="vehicle" id="v1" value="No Vehicle|V199899">
+          No Vehicle &middot; V199899
+        </div>
+        <div class="radio-option" onclick="selectRadio('v2', this)">
+          <input type="radio" name="vehicle" id="v2" value="No Vehicle|V199899">
+          No Vehicle &middot; V199899
+        </div>
+        <div class="radio-option" onclick="selectRadio('v3', this)">
+          <input type="radio" name="vehicle" id="v3" value="Hyundai Ioniq|9JRA698">
+          Hyundai Ioniq &middot; 9JRA698
+        </div>
+        <div class="radio-option" id="addNewOption" onclick="selectRadio('v4', this); toggleAddNew(true)">
+          <input type="radio" name="vehicle" id="v4" value="new">
+          Add new vehicle
+        </div>
+
+        <div class="add-new-section" id="addNewSection">
+          <select class="modal-select" id="makeModel">
+            <option value="" disabled selected>Make and Model</option>
+            <option>Vehicle Not Listed</option>
+            <option>Chevrolet Blazer</option><option>Chevrolet Camaro</option>
+            <option>Chevrolet Colorado</option><option>Chevrolet Equinox</option>
+            <option>Chevrolet Malibu</option><option>Chevrolet Silverado</option>
+            <option>Chevrolet Suburban</option><option>Chevrolet Tahoe</option>
+            <option>Chevrolet Traverse</option><option>Chevrolet Trax</option>
+            <option>Ford Bronco</option><option>Ford Bronco Sport</option>
+            <option>Ford Escape</option><option>Ford Expedition</option>
+            <option>Ford Explorer</option><option>Ford F-Series</option>
+            <option>Ford Maverick</option><option>Ford Mustang Mach-E</option>
+            <option>Ford Ranger</option><option>Ford Transit</option>
+            <option>GMC Acadia</option><option>GMC Canyon</option>
+            <option>GMC Hummer EV</option><option>GMC Savana</option>
+            <option>GMC Sierra</option><option>GMC Terrain</option>
+            <option>GMC Terrain Denali</option><option>GMC Yukon</option>
+            <option>GMC Yukon Denali</option><option>GMC Yukon XL</option>
+            <option>Honda Accord</option><option>Honda Civic</option>
+            <option>Honda CR-V</option><option>Honda Fit</option>
+            <option>Honda HR-V</option><option>Honda Insight</option>
+            <option>Honda Odyssey</option><option>Honda Passport</option>
+            <option>Honda Pilot</option><option>Honda Ridgeline</option>
+            <option>Hyundai Accent</option><option>Hyundai Elantra</option>
+            <option>Hyundai Ioniq</option><option>Hyundai Kona</option>
+            <option>Hyundai Kona EV</option><option>Hyundai Palisade</option>
+            <option>Hyundai Santa Fe</option><option>Hyundai Sonata</option>
+            <option>Hyundai Tucson</option><option>Hyundai Venue</option>
+            <option>Jeep Cherokee</option><option>Jeep Compass</option>
+            <option>Jeep Gladiator</option><option>Jeep Grand Cherokee</option>
+            <option>Jeep Grand Wagoneer</option><option>Jeep Liberty</option>
+            <option>Jeep Renegade</option><option>Jeep Wagoneer</option>
+            <option>Jeep Wrangler</option><option>Kia Carnival</option>
+            <option>Kia EV6</option><option>Kia Forte</option>
+            <option>Kia Niro</option><option>Kia Seltos</option>
+            <option>Kia Sorento</option><option>Kia Soul</option>
+            <option>Kia Sportage</option><option>Kia Stinger</option>
+            <option>Kia Telluride</option><option>Nissan Altima</option>
+            <option>Nissan Armada</option><option>Nissan Frontier</option>
+            <option>Nissan Kicks</option><option>Nissan Murano</option>
+            <option>Nissan Pathfinder</option><option>Nissan Rogue</option>
+            <option>Nissan Sentra</option><option>Nissan Titan</option>
+            <option>Nissan Versa</option><option>Ram Pickup</option>
+            <option>Ram ProMaster</option><option>Ram ProMaster City</option>
+            <option>Toyota 4Runner</option><option>Toyota Camry</option>
+            <option>Toyota Corolla</option><option>Toyota Corolla Cross</option>
+            <option>Toyota Highlander</option><option>Toyota Prius</option>
+            <option>Toyota RAV4</option><option>Toyota Sienna</option>
+            <option>Toyota Tacoma</option><option>Toyota Tundra</option>
+          </select>
+
+          <input class="modal-input" type="text" id="licensePlateInput" placeholder="License Plate" />
+
+          <select class="modal-select" id="stateSelect">
+            <option value="" disabled selected>Select a state or province</option>
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+            <option>Arkansas</option><option>California</option><option>Colorado</option>
+            <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+            <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+            <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+            <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+            <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+            <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+            <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+            <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+            <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+            <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+            <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+            <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+            <option>Texas</option><option>Utah</option><option>Vermont</option>
+            <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+            <option>Wisconsin</option><option>Wyoming</option><option>District of Columbia</option>
+            <option>Alberta</option><option>British Columbia</option><option>Manitoba</option>
+            <option>New Brunswick</option><option>Newfoundland and Labrador</option>
+            <option>Nova Scotia</option><option>Ontario</option>
+            <option>Prince Edward Island</option><option>Quebec</option>
+            <option>Saskatchewan</option>
+          </select>
+
+          <div class="modal-checkbox-row">
+            <input type="checkbox" id="defaultVehicle" />
+            <label for="defaultVehicle">Make this my default vehicle</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-submit" onclick="submitVehicle()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+    function selectRadio(id, el) {
+      document.getElementById(id).checked = true;
+      document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      if (id !== 'v4') toggleAddNew(false);
+    }
+    function toggleAddNew(show) {
+      const s = document.getElementById('addNewSection');
+      show ? s.classList.add('visible') : s.classList.remove('visible');
+    }
+    function submitVehicle() {
+      const selected = document.querySelector('input[name="vehicle"]:checked');
+      if (!selected) { alert('Please select a vehicle.'); return; }
+
+      let vehicleName = '', vehiclePlate = '';
+
+      if (selected.value === 'new') {
+        const make = document.getElementById('makeModel').value;
+        const plate = document.getElementById('licensePlateInput').value.trim();
+        if (!make) { alert('Please select a Make and Model.'); return; }
+        if (!plate) { alert('Please enter a License Plate.'); return; }
+        vehicleName = make;
+        vehiclePlate = plate.toUpperCase();
+      } else {
+        const parts = selected.value.split('|');
+        vehicleName = parts[0];
+        vehiclePlate = parts[1] || '';
+      }
+
+      // Populate pass
+      document.getElementById('vehicleName').textContent = vehicleName;
+      document.getElementById('vehiclePlate').textContent = vehiclePlate;
+      document.getElementById('vehicleDisplay').style.display = 'block';
+      document.getElementById('missingVehicleRow').style.display = 'none';
+
+      // Hide the warning box once plate is added
+      document.getElementById('warningBox').style.display = 'none';
+
+      closeModal();
+    }
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+
+</body>
+</html>
